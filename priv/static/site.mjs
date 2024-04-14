@@ -61,18 +61,18 @@ var ListIterator = class {
     if (this.#current instanceof Empty) {
       return { done: true };
     } else {
-      let { head: head2, tail } = this.#current;
+      let { head, tail } = this.#current;
       this.#current = tail;
-      return { value: head2, done: false };
+      return { value: head, done: false };
     }
   }
 };
 var Empty = class extends List {
 };
 var NonEmpty = class extends List {
-  constructor(head2, tail) {
+  constructor(head, tail) {
     super();
-    this.head = head2;
+    this.head = head;
     this.tail = tail;
   }
 };
@@ -189,11 +189,6 @@ var Some = class extends CustomType {
 var None = class extends CustomType {
 };
 
-// build/dev/javascript/gleam_stdlib/gleam/dynamic.mjs
-function from(a2) {
-  return identity(a2);
-}
-
 // build/dev/javascript/gleam_stdlib/dict.mjs
 var tempDataView = new DataView(new ArrayBuffer(8));
 var SHIFT = 5;
@@ -246,6 +241,11 @@ function do_map(loop$list, loop$fun, loop$acc) {
 }
 function map(list, fun) {
   return do_map(list, fun, toList([]));
+}
+
+// build/dev/javascript/gleam_stdlib/gleam/dynamic.mjs
+function from(a2) {
+  return identity(a2);
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/bool.mjs
@@ -308,9 +308,6 @@ function href(uri) {
 }
 function target(target2) {
   return attribute("target", target2);
-}
-function rel(relationship) {
-  return attribute("rel", relationship);
 }
 
 // build/dev/javascript/lustre/lustre/element.mjs
@@ -745,22 +742,16 @@ function start3(app, selector, flags) {
   );
 }
 
+// build/dev/javascript/site/core.mjs
+var Model = class extends CustomType {
+  constructor(selected_language, selected_tool) {
+    super();
+    this.selected_language = selected_language;
+    this.selected_tool = selected_tool;
+  }
+};
+
 // build/dev/javascript/lustre/lustre/element/html.mjs
-function text2(content) {
-  return text(content);
-}
-function head(attrs, children) {
-  return element("head", attrs, children);
-}
-function link(attrs) {
-  return element("link", attrs, toList([]));
-}
-function title(attrs, content) {
-  return element("title", attrs, toList([text2(content)]));
-}
-function body(attrs, children) {
-  return element("body", attrs, children);
-}
 function h1(attrs, children) {
   return element("h1", attrs, children);
 }
@@ -789,29 +780,7 @@ function i(attrs, children) {
   return element("i", attrs, children);
 }
 
-// build/dev/javascript/site/site.mjs
-var Icon = class extends CustomType {
-  constructor(icon, hover_color, link2) {
-    super();
-    this.icon = icon;
-    this.hover_color = hover_color;
-    this.link = link2;
-  }
-};
-var Project = class extends CustomType {
-  constructor(name, description) {
-    super();
-    this.name = name;
-    this.description = description;
-  }
-};
-var Model = class extends CustomType {
-  constructor(selected_language, selected_tool) {
-    super();
-    this.selected_language = selected_language;
-    this.selected_tool = selected_tool;
-  }
-};
+// build/dev/javascript/site/components.mjs
 function header() {
   return nav(
     toList([class$("flex place-content-center")]),
@@ -847,7 +816,23 @@ function header() {
     ])
   );
 }
-function render_icon(icon) {
+function title_text(title, extra_css) {
+  return h1(
+    toList([class$("text-rose-800 text-xl " + extra_css)]),
+    toList([text(title)])
+  );
+}
+
+// build/dev/javascript/site/util/icon.mjs
+var Icon = class extends CustomType {
+  constructor(icon, hover_color, link) {
+    super();
+    this.icon = icon;
+    this.hover_color = hover_color;
+    this.link = link;
+  }
+};
+function render(icon) {
   return a(
     toList([
       href(icon.link),
@@ -866,130 +851,10 @@ function render_icon(icon) {
     ])
   );
 }
-function title_text(title2, extra_css) {
-  return h1(
-    toList([class$("text-rose-800 text-xl " + extra_css)]),
-    toList([text(title2)])
-  );
-}
-function project_to_html(project) {
+
+// build/dev/javascript/site/pages/home/languages.mjs
+function languages(model) {
   return div(
-    toList([
-      class$(
-        "bg-rose-200 p-3 rounded-lg max-w-80 m-3 shadow-sm transition-all duration-150 hover:shadow-md"
-      )
-    ]),
-    toList([
-      h2(
-        toList([class$("text-rose-700 text-lg hover:underline")]),
-        toList([text(project.name)])
-      ),
-      p(
-        toList([class$("text-rose-800")]),
-        toList([text(project.description)])
-      )
-    ])
-  );
-}
-function projects() {
-  let project_html = (() => {
-    let _pipe = toList([
-      new Project(
-        "Radish",
-        "A highly concurrent unix shell written in Gleam and Rust"
-      ),
-      new Project(
-        "Sakinyje",
-        "A modern desktop app for learning languages via immersion which seamlessly integrates with Anki"
-      ),
-      new Project("Anteater", "A TUI drawing app written in Python"),
-      new Project(
-        "Bashtyped",
-        "An early exploration of making optional typing for bash"
-      ),
-      new Project(
-        "This website",
-        "My portfolio website, written entirely in Gleam."
-      ),
-      new Project(
-        "Fishbang",
-        "A fish plugin which emulates the various bash bang commands"
-      )
-    ]);
-    return map(_pipe, project_to_html);
-  })();
-  return div(
-    toList([]),
-    prepend(title_text("Projects:", ""), project_html)
-  );
-}
-function init2(_) {
-  return new Model(new None(), new None());
-}
-function update2(model, msg) {
-  let v = msg[0];
-  return model.withFields({ selected_language: new Some(v) });
-}
-function view(model) {
-  let socials = (() => {
-    let _pipe = toList([
-      new Icon(
-        "nf-md-github",
-        "hover:text-rose-900",
-        "https://github.com/BrewingWeasel"
-      ),
-      new Icon(
-        "nf-md-linkedin",
-        "hover:text-fuchsia-600",
-        "https://www.linkedin.com/in/finnian-brewer-208b162b5"
-      )
-    ]);
-    return map(_pipe, render_icon);
-  })();
-  let tools = div(
-    toList([class$("")]),
-    toList([
-      title_text("Tools:", "text-center"),
-      div(
-        toList([
-          class$(
-            "flex flex-row place-content-evenly bg-rose-200 p-2 mt-2 w-5/6 sm:w-2/3 m-auto rounded-lg"
-          )
-        ]),
-        (() => {
-          let _pipe = toList([
-            new Icon(
-              "nf-dev-git",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-fa-linux",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-linux-neovim",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-linux-hyprland",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-cod-terminal",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            )
-          ]);
-          return map(_pipe, render_icon);
-        })()
-      )
-    ])
-  );
-  let languages = div(
     toList([class$("")]),
     toList([
       title_text("Languages:", "text-center"),
@@ -1042,79 +907,194 @@ function view(model) {
               "https://github.com/BrewingWeasel"
             )
           ]);
-          return map(_pipe, render_icon);
+          return map(_pipe, render);
         })()
       )
     ])
   );
+}
+
+// build/dev/javascript/site/pages/home/tools.mjs
+function tools(model) {
+  return div(
+    toList([class$("")]),
+    toList([
+      title_text("Tools:", "text-center"),
+      div(
+        toList([
+          class$(
+            "flex flex-row place-content-evenly bg-rose-200 p-2 mt-2 w-5/6 sm:w-2/3 m-auto rounded-lg"
+          )
+        ]),
+        (() => {
+          let _pipe = toList([
+            new Icon(
+              "nf-dev-git",
+              "hover:text-red-600",
+              "https://github.com/BrewingWeasel"
+            ),
+            new Icon(
+              "nf-fa-linux",
+              "hover:text-red-600",
+              "https://github.com/BrewingWeasel"
+            ),
+            new Icon(
+              "nf-linux-neovim",
+              "hover:text-red-600",
+              "https://github.com/BrewingWeasel"
+            ),
+            new Icon(
+              "nf-linux-hyprland",
+              "hover:text-red-600",
+              "https://github.com/BrewingWeasel"
+            ),
+            new Icon(
+              "nf-cod-terminal",
+              "hover:text-red-600",
+              "https://github.com/BrewingWeasel"
+            )
+          ]);
+          return map(_pipe, render);
+        })()
+      )
+    ])
+  );
+}
+
+// build/dev/javascript/site/util/projects.mjs
+var Project = class extends CustomType {
+  constructor(name, description) {
+    super();
+    this.name = name;
+    this.description = description;
+  }
+};
+function project_to_html(project) {
+  return div(
+    toList([
+      class$(
+        "bg-rose-200 p-3 rounded-lg max-w-80 m-3 shadow-sm transition-all duration-150 hover:shadow-md"
+      )
+    ]),
+    toList([
+      h2(
+        toList([class$("text-rose-700 text-lg hover:underline")]),
+        toList([text(project.name)])
+      ),
+      p(
+        toList([class$("text-rose-800")]),
+        toList([text(project.description)])
+      )
+    ])
+  );
+}
+function render_all() {
+  let project_html = (() => {
+    let _pipe = toList([
+      new Project(
+        "Radish",
+        "A highly concurrent unix shell written in Gleam and Rust"
+      ),
+      new Project(
+        "Sakinyje",
+        "A modern desktop app for learning languages via immersion which seamlessly integrates with Anki"
+      ),
+      new Project("Anteater", "A TUI drawing app written in Python"),
+      new Project(
+        "Bashtyped",
+        "An early exploration of making optional typing for bash"
+      ),
+      new Project(
+        "This website",
+        "My portfolio website, written entirely in Gleam."
+      ),
+      new Project(
+        "Fishbang",
+        "A fish plugin which emulates the various bash bang commands"
+      )
+    ]);
+    return map(_pipe, project_to_html);
+  })();
+  return div(
+    toList([]),
+    prepend(title_text("Projects:", ""), project_html)
+  );
+}
+
+// build/dev/javascript/site/pages/home.mjs
+function page(model) {
+  let socials = (() => {
+    let _pipe = toList([
+      new Icon(
+        "nf-md-github",
+        "hover:text-rose-900",
+        "https://github.com/BrewingWeasel"
+      ),
+      new Icon(
+        "nf-md-linkedin",
+        "hover:text-fuchsia-600",
+        "https://www.linkedin.com/in/finnian-brewer-208b162b5"
+      )
+    ]);
+    return map(_pipe, render);
+  })();
   return div(
     toList([class$("dark")]),
     toList([
-      head(
-        toList([]),
-        toList([
-          title(toList([]), "Hello!"),
-          link(
-            toList([
-              rel("stylesheet"),
-              href("static/styles.css")
-            ])
-          )
-        ])
-      ),
       header(),
-      body(
-        toList([class$("bg-rose-100")]),
+      div(
+        toList([class$("flex flex-col sm:flex-row")]),
         toList([
           div(
-            toList([class$("flex flex-col sm:flex-row")]),
+            toList([class$("sm:w-2/3 w-full sm:ml-4 flex flex-col")]),
             toList([
               div(
-                toList([
-                  class$("sm:w-2/3 w-full sm:ml-4 flex flex-col")
-                ]),
-                toList([
-                  div(
+                toList([class$("flex space-x-2 mr-4 items-baseline")]),
+                prepend(
+                  h1(
                     toList([
-                      class$("flex space-x-2 mr-4 items-baseline")
-                    ]),
-                    prepend(
-                      h1(
-                        toList([
-                          class$(
-                            "text-rose-800 text-6xl m-2 font-bold grow"
-                          )
-                        ]),
-                        toList([text("Labas!")])
-                      ),
-                      socials
-                    )
-                  ),
-                  br(toList([])),
-                  p(
-                    toList([class$("text-rose-900 text-md mx-4 ")]),
-                    toList([
-                      text(
-                        "I'm a 16-year-old self-taught programmer from Portland, Oregon. I'm interested in languages, linux, terminals and functional programming. When I get the chance, I love reading, running and backpacking. I write rust in neovim in a wayland tiling window manager on Arch, btw."
+                      class$(
+                        "text-rose-800 text-6xl m-2 font-bold grow"
                       )
-                    ])
+                    ]),
+                    toList([text("Labas!")])
                   ),
-                  hr(
-                    toList([
-                      class$("border-rose-900 border-1 mx-4 mt-2")
-                    ])
-                  ),
-                  languages,
-                  tools
+                  socials
+                )
+              ),
+              br(toList([])),
+              p(
+                toList([class$("text-rose-900 text-md mx-4 ")]),
+                toList([
+                  text(
+                    "I'm a 16-year-old self-taught programmer from Portland, Oregon. I'm interested in languages, linux, terminals and functional programming. When I get the chance, I love reading, running and backpacking. I write rust in neovim in a wayland tiling window manager on Arch, btw."
+                  )
                 ])
               ),
-              div(toList([]), toList([projects()]))
+              hr(
+                toList([class$("border-rose-900 border-1 mx-4 mt-2")])
+              ),
+              languages(model),
+              tools(model)
             ])
-          )
+          ),
+          div(toList([]), toList([render_all()]))
         ])
       )
     ])
   );
+}
+
+// build/dev/javascript/site/site.mjs
+function init2(_) {
+  return new Model(new None(), new None());
+}
+function update2(model, msg) {
+  let v = msg[0];
+  return model.withFields({ selected_language: new Some(v) });
+}
+function view(model) {
+  return page(model);
 }
 function main() {
   let app = simple(init2, update2, view);
@@ -1123,7 +1103,7 @@ function main() {
     throw makeError(
       "assignment_no_match",
       "site",
-      115,
+      9,
       "main",
       "Assignment pattern did not match",
       { value: $ }
