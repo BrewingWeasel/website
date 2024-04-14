@@ -1,8 +1,6 @@
 import components
 import core.{type Model}
 import gleam/list
-import gleam/option.{type Option, None, Some}
-import lustre
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
@@ -11,21 +9,19 @@ import pages/home/tools.{tools}
 import util/icon.{Icon}
 import util/projects
 
-pub fn page(model: Model) -> Element(a) {
+pub fn page(model: Model) -> Element(core.Msg) {
   let socials =
     [
-      Icon(
-        icon: "nf-md-github",
-        hover_color: "hover:text-rose-900",
-        link: "https://github.com/BrewingWeasel",
+      #(
+        Icon(icon: "nf-md-github", hover_color: "hover:text-rose-900"),
+        "https://github.com/BrewingWeasel",
       ),
-      Icon(
-        icon: "nf-md-linkedin",
-        hover_color: "hover:text-fuchsia-600",
-        link: "https://www.linkedin.com/in/finnian-brewer-208b162b5",
+      #(
+        Icon(icon: "nf-md-linkedin", hover_color: "hover:text-fuchsia-600"),
+        "https://www.linkedin.com/in/finnian-brewer-208b162b5",
       ),
     ]
-    |> list.map(icon.render)
+    |> list.map(fn(x) { icon.render_link(x.0, x.1) })
 
   html.div([attribute.class("dark")], [
     components.header(),

@@ -16,6 +16,7 @@ fn init(_) -> Model {
 fn update(model: Model, msg: Msg) {
   case msg {
     core.SetLanguage(v) -> Model(..model, selected_language: Some(v))
+    core.SetTool(v) -> Model(..model, selected_tool: Some(v))
   }
 }
 

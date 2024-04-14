@@ -188,6 +188,14 @@ var Some = class extends CustomType {
 };
 var None = class extends CustomType {
 };
+function unwrap(option, default$) {
+  if (option instanceof Some) {
+    let x = option[0];
+    return x;
+  } else {
+    return default$;
+  }
+}
 
 // build/dev/javascript/gleam_stdlib/dict.mjs
 var tempDataView = new DataView(new ArrayBuffer(8));
@@ -295,10 +303,20 @@ var Attribute = class extends CustomType {
     this.as_property = as_property;
   }
 };
+var Event = class extends CustomType {
+  constructor(x0, x1) {
+    super();
+    this[0] = x0;
+    this[1] = x1;
+  }
+};
 
 // build/dev/javascript/lustre/lustre/attribute.mjs
 function attribute(name, value) {
   return new Attribute(name, from(value), false);
+}
+function on(name, handler) {
+  return new Event("on" + name, handler);
 }
 function class$(name) {
   return attribute("class", name);
@@ -538,25 +556,25 @@ function createElementNode({ prev, next, dispatch, stack }) {
   return el2;
 }
 var registeredHandlers = /* @__PURE__ */ new WeakMap();
-function lustreGenericEventHandler(event) {
-  const target2 = event.currentTarget;
+function lustreGenericEventHandler(event2) {
+  const target2 = event2.currentTarget;
   if (!registeredHandlers.has(target2)) {
-    target2.removeEventListener(event.type, lustreGenericEventHandler);
+    target2.removeEventListener(event2.type, lustreGenericEventHandler);
     return;
   }
   const handlersForEventTarget = registeredHandlers.get(target2);
-  if (!handlersForEventTarget.has(event.type)) {
-    target2.removeEventListener(event.type, lustreGenericEventHandler);
+  if (!handlersForEventTarget.has(event2.type)) {
+    target2.removeEventListener(event2.type, lustreGenericEventHandler);
     return;
   }
-  handlersForEventTarget.get(event.type)(event);
+  handlersForEventTarget.get(event2.type)(event2);
 }
-function lustreServerEventHandler(event) {
-  const el2 = event.target;
-  const tag = el2.getAttribute(`data-lustre-on-${event.type}`);
+function lustreServerEventHandler(event2) {
+  const el2 = event2.target;
+  const tag = el2.getAttribute(`data-lustre-on-${event2.type}`);
   const data = JSON.parse(el2.getAttribute("data-lustre-data") || "{}");
   const include = JSON.parse(el2.getAttribute("data-lustre-include") || "[]");
-  switch (event.type) {
+  switch (event2.type) {
     case "input":
     case "change":
       include.push("target.value");
@@ -567,7 +585,7 @@ function lustreServerEventHandler(event) {
     data: include.reduce(
       (data2, property) => {
         const path = property.split(".");
-        for (let i2 = 0, o = data2, e = event; i2 < path.length; i2++) {
+        for (let i2 = 0, o = data2, e = event2; i2 < path.length; i2++) {
           if (i2 === path.length - 1) {
             o[path[i2]] = e[path[i2]];
           } else {
@@ -638,9 +656,9 @@ var LustreClientApplication2 = class _LustreClientApplication {
         return;
     }
   }
-  emit(event, data) {
+  emit(event2, data) {
     this.#root.dispatchEvent(
-      new CustomEvent(event, {
+      new CustomEvent(event2, {
         bubbles: true,
         detail: data,
         composed: true
@@ -669,7 +687,7 @@ var LustreClientApplication2 = class _LustreClientApplication {
     while (this.#effects.length) {
       this.#effects.shift()(
         (msg) => this.send(new Dispatch(msg)),
-        (event, data) => this.emit(event, data)
+        (event2, data) => this.emit(event2, data)
       );
     }
     if (this.#queue.length) {
@@ -750,8 +768,23 @@ var Model = class extends CustomType {
     this.selected_tool = selected_tool;
   }
 };
+var SetLanguage = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
+var SetTool = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
 
 // build/dev/javascript/lustre/lustre/element/html.mjs
+function text2(content) {
+  return text(content);
+}
 function h1(attrs, children) {
   return element("h1", attrs, children);
 }
@@ -823,19 +856,28 @@ function title_text(title, extra_css) {
   );
 }
 
+// build/dev/javascript/lustre/lustre/event.mjs
+function on2(name, handler) {
+  return on(name, handler);
+}
+function on_click(msg) {
+  return on2("click", (_) => {
+    return new Ok(msg);
+  });
+}
+
 // build/dev/javascript/site/util/icon.mjs
 var Icon = class extends CustomType {
-  constructor(icon, hover_color, link) {
+  constructor(icon, hover_color) {
     super();
     this.icon = icon;
     this.hover_color = hover_color;
-    this.link = link;
   }
 };
-function render(icon) {
+function render_link(icon, link) {
   return a(
     toList([
-      href(icon.link),
+      href(link),
       target("_blank"),
       class$(
         "text-rose-700 hover:-translate-y-0.5 transition-transform ease-in-out delay-50 duration-150 " + icon.hover_color
@@ -849,6 +891,17 @@ function render(icon) {
         toList([])
       )
     ])
+  );
+}
+function render_button(icon, msg) {
+  return i(
+    toList([
+      on_click(msg),
+      class$(
+        "text-xl sm:text-3xl nf " + icon.icon + " text-rose-700 hover:-translate-y-0.5 transition-transform ease-in-out delay-50 duration-150 " + icon.hover_color
+      )
+    ]),
+    toList([])
   );
 }
 
@@ -866,49 +919,33 @@ function languages(model) {
         ]),
         (() => {
           let _pipe = toList([
-            new Icon(
-              "nf-dev-rust",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-dev-python",
-              "hover:text-violet-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-seti-lua",
-              "hover:text-indigo-400",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-custom-elixir",
-              "hover:text-purple-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-seti-go",
-              "hover:text-indigo-500",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-dev-haskell",
-              "hover:text-purple-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-cod-terminal_bash",
-              "hover:text-rose-900",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-dev-javascript_badge",
-              "hover:text-purple-600",
-              "https://github.com/BrewingWeasel"
-            )
+            new Icon("nf-dev-rust", "hover:text-red-600"),
+            new Icon("nf-dev-python", "hover:text-violet-600"),
+            new Icon("nf-seti-lua", "hover:text-indigo-400"),
+            new Icon("nf-custom-elixir", "hover:text-purple-600"),
+            new Icon("nf-seti-go", "hover:text-indigo-500"),
+            new Icon("nf-dev-haskell", "hover:text-purple-600"),
+            new Icon("nf-cod-terminal_bash", "hover:text-rose-900"),
+            new Icon("nf-dev-javascript_badge", "hover:text-purple-600")
           ]);
-          return map(_pipe, render);
+          return map(
+            _pipe,
+            (x) => {
+              return render_button(x, new SetLanguage("rust"));
+            }
+          );
         })()
+      ),
+      p(
+        toList([]),
+        toList([
+          text2(
+            unwrap(
+              model.selected_language,
+              "Click on a language to see more detailed information"
+            )
+          )
+        ])
       )
     ])
   );
@@ -917,45 +954,61 @@ function languages(model) {
 // build/dev/javascript/site/pages/home/tools.mjs
 function tools(model) {
   return div(
-    toList([class$("")]),
+    toList([]),
     toList([
       title_text("Tools:", "text-center"),
       div(
         toList([
           class$(
-            "flex flex-row place-content-evenly bg-rose-200 p-2 mt-2 w-5/6 sm:w-2/3 m-auto rounded-lg"
+            "p-2 bg-rose-200 mt-2 w-5/6 sm:w-2/3 m-auto rounded-lg"
           )
         ]),
-        (() => {
-          let _pipe = toList([
-            new Icon(
-              "nf-dev-git",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-fa-linux",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-linux-neovim",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-linux-hyprland",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            ),
-            new Icon(
-              "nf-cod-terminal",
-              "hover:text-red-600",
-              "https://github.com/BrewingWeasel"
-            )
-          ]);
-          return map(_pipe, render);
-        })()
+        toList([
+          div(
+            toList([class$("flex flex-row place-content-evenly")]),
+            (() => {
+              let _pipe = toList([
+                [
+                  new Icon("nf-dev-git", "hover:text-red-600"),
+                  "I use the git cli daily to manage all of my projects, most of which are on github. "
+                ],
+                [
+                  new Icon("nf-fa-linux", "hover:text-red-600"),
+                  "I've been using linux for around a year and a half, and I've experimented with many distros and desktop environments. I'm currently using Arch (btw)"
+                ],
+                [
+                  new Icon("nf-linux-neovim", "hover:text-red-600"),
+                  "Soon after I switched to linux, I began using neovim. These days it's the only editor I use, and I made a complete configuration from scratch."
+                ],
+                [
+                  new Icon("nf-linux-hyprland", "hover:text-red-600"),
+                  "Hyprland has been my go-to window manager for a long time now. I've customized it with vim-style keybinds and setting it up taught me a lot about Linux and Wayland."
+                ],
+                [
+                  new Icon("nf-cod-terminal", "hover:text-red-600"),
+                  "When I first started programming on Windows, I was terrified of the shell. These days however, I spend as much time as possible in my terminal (currently Kitty)."
+                ]
+              ]);
+              return map(
+                _pipe,
+                (x) => {
+                  return render_button(x[0], new SetTool(x[1]));
+                }
+              );
+            })()
+          ),
+          p(
+            toList([class$("text-rose-900 m-1 pt-2 text-center")]),
+            toList([
+              text2(
+                unwrap(
+                  model.selected_tool,
+                  "Click on a tool to see more detailed information"
+                )
+              )
+            ])
+          )
+        ])
       )
     ])
   );
@@ -1025,18 +1078,18 @@ function render_all() {
 function page(model) {
   let socials = (() => {
     let _pipe = toList([
-      new Icon(
-        "nf-md-github",
-        "hover:text-rose-900",
+      [
+        new Icon("nf-md-github", "hover:text-rose-900"),
         "https://github.com/BrewingWeasel"
-      ),
-      new Icon(
-        "nf-md-linkedin",
-        "hover:text-fuchsia-600",
+      ],
+      [
+        new Icon("nf-md-linkedin", "hover:text-fuchsia-600"),
         "https://www.linkedin.com/in/finnian-brewer-208b162b5"
-      )
+      ]
     ]);
-    return map(_pipe, render);
+    return map(_pipe, (x) => {
+      return render_link(x[0], x[1]);
+    });
   })();
   return div(
     toList([class$("dark")]),
@@ -1090,8 +1143,13 @@ function init2(_) {
   return new Model(new None(), new None());
 }
 function update2(model, msg) {
-  let v = msg[0];
-  return model.withFields({ selected_language: new Some(v) });
+  if (msg instanceof SetLanguage) {
+    let v = msg[0];
+    return model.withFields({ selected_language: new Some(v) });
+  } else {
+    let v = msg[0];
+    return model.withFields({ selected_tool: new Some(v) });
+  }
 }
 function view(model) {
   return page(model);

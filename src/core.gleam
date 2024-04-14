@@ -6,4 +6,5 @@ pub type Model {
 
 pub type Msg {
   SetLanguage(String)
+  SetTool(String)
 }
