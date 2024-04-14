@@ -17,23 +17,26 @@ pub fn tools(model: Model) -> Element(core.Msg) {
           [attribute.class("flex flex-row place-content-evenly")],
           [
             #(
-              Icon(icon: "nf-dev-git", hover_color: "hover:text-red-600"),
+              Icon(icon: "nf-dev-git", hover_color: "hover:text-orange-600"),
               "I use the git cli daily to manage all of my projects, most of which are on github. ",
             ),
             #(
-              Icon(icon: "nf-fa-linux", hover_color: "hover:text-red-600"),
+              Icon(icon: "nf-fa-linux", hover_color: "hover:text-slate-900"),
               "I've been using linux for around a year and a half, and I've experimented with many distros and desktop environments. I'm currently using Arch (btw)",
             ),
             #(
-              Icon(icon: "nf-linux-neovim", hover_color: "hover:text-red-600"),
+              Icon(icon: "nf-linux-neovim", hover_color: "hover:text-green-500"),
               "Soon after I switched to linux, I began using neovim. These days it's the only editor I use, and I made a complete configuration from scratch.",
             ),
             #(
-              Icon(icon: "nf-linux-hyprland", hover_color: "hover:text-red-600"),
+              Icon(
+                icon: "nf-linux-hyprland",
+                hover_color: "hover:text-cyan-500",
+              ),
               "Hyprland has been my go-to window manager for a long time now. I've customized it with vim-style keybinds and setting it up taught me a lot about Linux and Wayland.",
             ),
             #(
-              Icon(icon: "nf-cod-terminal", hover_color: "hover:text-red-600"),
+              Icon(icon: "nf-cod-terminal", hover_color: "hover:text-slate-800"),
               "When I first started programming on Windows, I was terrified of the shell. These days however, I spend as much time as possible in my terminal (currently Kitty).",
             ),
           ]

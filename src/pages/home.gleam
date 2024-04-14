@@ -35,12 +35,12 @@ pub fn page(model: Model) -> Element(core.Msg) {
           ..socials
         ]),
         html.br([]),
-        html.p([attribute.class("text-rose-900 text-md mx-4 ")], [
+        html.p([attribute.class("text-rose-900 text-md mx-4")], [
           element.text(
             "I'm a 16-year-old self-taught programmer from Portland, Oregon. I'm interested in languages, linux, terminals and functional programming. When I get the chance, I love reading, running and backpacking. I write rust in neovim in a wayland tiling window manager on Arch, btw.",
           ),
         ]),
-        html.hr([attribute.class("border-rose-900 border-1 mx-4 mt-2")]),
+        html.hr([attribute.class("border-rose-900 border-1 mx-4 my-3")]),
         languages(model),
         tools(model),
       ]),

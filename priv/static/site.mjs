@@ -914,36 +914,65 @@ function languages(model) {
       div(
         toList([
           class$(
-            "flex flex-row place-content-evenly bg-rose-200 p-2 mt-2 w-5/6 sm:w-2/3 m-auto rounded-lg"
+            "p-2 bg-rose-200 mt-2 w-5/6 sm:w-2/3 m-auto rounded-lg"
           )
         ]),
-        (() => {
-          let _pipe = toList([
-            new Icon("nf-dev-rust", "hover:text-red-600"),
-            new Icon("nf-dev-python", "hover:text-violet-600"),
-            new Icon("nf-seti-lua", "hover:text-indigo-400"),
-            new Icon("nf-custom-elixir", "hover:text-purple-600"),
-            new Icon("nf-seti-go", "hover:text-indigo-500"),
-            new Icon("nf-dev-haskell", "hover:text-purple-600"),
-            new Icon("nf-cod-terminal_bash", "hover:text-rose-900"),
-            new Icon("nf-dev-javascript_badge", "hover:text-purple-600")
-          ]);
-          return map(
-            _pipe,
-            (x) => {
-              return render_button(x, new SetLanguage("rust"));
-            }
-          );
-        })()
-      ),
-      p(
-        toList([]),
         toList([
-          text2(
-            unwrap(
-              model.selected_language,
-              "Click on a language to see more detailed information"
-            )
+          div(
+            toList([class$("flex flex-row place-content-evenly")]),
+            (() => {
+              let _pipe = toList([
+                [
+                  new Icon("nf-dev-rust", "hover:text-red-600"),
+                  "At this point, Rust is the language I have the most experience with. It took me a while to get used to the borrow checker, but now most projects I make have at least some rust. I'm simply in love with the language. Two of my biggest projects, Sakinyje and Radish, use rust to some degree."
+                ],
+                [
+                  new Icon("nf-dev-python", "hover:text-yellow-600"),
+                  "Python was the first language I used, and I'm still a fan of it today. Although I don't use it as much as I used to, I still write some scripts in it and keep track of the ecosystem."
+                ],
+                [
+                  new Icon("nf-seti-lua", "hover:text-indigo-400"),
+                  "Lua is a language that I have relatively little experience with, but it is extremely intuitive. My main knowledge comes from configuration written for Neovim and scripts I made for Davinci Resolve."
+                ],
+                [
+                  new Icon("nf-custom-elixir", "hover:text-purple-600"),
+                  "Elixir is one of my favorite languages, though I haven't used it a ton. However, I find it intuitive due to my previous functional programming experience, and it's certainly a joy to write. My knowledge of Erlang from Gleam also helps."
+                ],
+                [
+                  new Icon("nf-seti-go", "hover:text-indigo-400"),
+                  "Go is the first lower-level language that I managed to learn. The over-simplification of everything is certainly annoying, but it does make me more productive. I've written a lot of concurrent programs and scrapers in Go."
+                ],
+                [
+                  new Icon("nf-dev-haskell", "hover:text-purple-600"),
+                  "I took the University of Helsinki Haskell MOOC, so I have a decent amount of experience with it. I haven't written much in Haskell since, but the principals have proven invaluable in other languages. Plus, now I know what a monad is."
+                ],
+                [
+                  new Icon("nf-cod-terminal_bash", "hover:text-slate-900"),
+                  "I love writing shell scripts. I learned a lot about bash (and posix sh) in my projects to make a shell, to compile a language to posix sh, andm y bash typing system."
+                ],
+                [
+                  new Icon("nf-dev-javascript_badge", "hover:text-yellow-600"),
+                  "Javascript was the second language I learned. It's not my favorite language, but it's certainly useful."
+                ]
+              ]);
+              return map(
+                _pipe,
+                (x) => {
+                  return render_button(x[0], new SetLanguage(x[1]));
+                }
+              );
+            })()
+          ),
+          p(
+            toList([class$("text-rose-900 m-1 pt-2 text-center")]),
+            toList([
+              text2(
+                unwrap(
+                  model.selected_language,
+                  "Click on a language to see more detailed information"
+                )
+              )
+            ])
           )
         ])
       )
@@ -969,23 +998,23 @@ function tools(model) {
             (() => {
               let _pipe = toList([
                 [
-                  new Icon("nf-dev-git", "hover:text-red-600"),
+                  new Icon("nf-dev-git", "hover:text-orange-600"),
                   "I use the git cli daily to manage all of my projects, most of which are on github. "
                 ],
                 [
-                  new Icon("nf-fa-linux", "hover:text-red-600"),
+                  new Icon("nf-fa-linux", "hover:text-slate-900"),
                   "I've been using linux for around a year and a half, and I've experimented with many distros and desktop environments. I'm currently using Arch (btw)"
                 ],
                 [
-                  new Icon("nf-linux-neovim", "hover:text-red-600"),
+                  new Icon("nf-linux-neovim", "hover:text-green-500"),
                   "Soon after I switched to linux, I began using neovim. These days it's the only editor I use, and I made a complete configuration from scratch."
                 ],
                 [
-                  new Icon("nf-linux-hyprland", "hover:text-red-600"),
+                  new Icon("nf-linux-hyprland", "hover:text-cyan-500"),
                   "Hyprland has been my go-to window manager for a long time now. I've customized it with vim-style keybinds and setting it up taught me a lot about Linux and Wayland."
                 ],
                 [
-                  new Icon("nf-cod-terminal", "hover:text-red-600"),
+                  new Icon("nf-cod-terminal", "hover:text-slate-800"),
                   "When I first started programming on Windows, I was terrified of the shell. These days however, I spend as much time as possible in my terminal (currently Kitty)."
                 ]
               ]);
@@ -1117,7 +1146,7 @@ function page(model) {
               ),
               br(toList([])),
               p(
-                toList([class$("text-rose-900 text-md mx-4 ")]),
+                toList([class$("text-rose-900 text-md mx-4")]),
                 toList([
                   text(
                     "I'm a 16-year-old self-taught programmer from Portland, Oregon. I'm interested in languages, linux, terminals and functional programming. When I get the chance, I love reading, running and backpacking. I write rust in neovim in a wayland tiling window manager on Arch, btw."
@@ -1125,7 +1154,7 @@ function page(model) {
                 ])
               ),
               hr(
-                toList([class$("border-rose-900 border-1 mx-4 mt-2")])
+                toList([class$("border-rose-900 border-1 mx-4 my-3")])
               ),
               languages(model),
               tools(model)
