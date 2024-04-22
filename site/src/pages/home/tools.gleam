@@ -1,5 +1,5 @@
 import components
-import core.{type Model}
+import core.{type MainPageModel}
 import gleam/list
 import gleam/option
 import lustre/attribute
@@ -7,8 +7,8 @@ import lustre/element.{type Element}
 import lustre/element/html
 import util/icon.{Icon}
 
-pub fn tools(model: Model) -> Element(core.Msg) {
-  html.div([], [
+pub fn tools(model: MainPageModel) -> Element(core.Msg) {
+  html.div([attribute.class("my-3")], [
     components.title_text("Tools:", "text-center"),
     html.div(
       [attribute.class("p-2 bg-rose-200 mt-2 w-5/6 sm:w-2/3 m-auto rounded-lg")],

@@ -1,15 +1,16 @@
 import components
-import core.{type Model}
+import core.{type MainPageModel}
 import gleam/list
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
+import pages/blog
 import pages/home/languages.{languages}
 import pages/home/tools.{tools}
 import util/icon.{Icon}
 import util/projects
 
-pub fn page(model: Model) -> Element(core.Msg) {
+pub fn page(model: MainPageModel) -> Element(core.Msg) {
   let socials =
     [
       #(
@@ -43,6 +44,7 @@ pub fn page(model: Model) -> Element(core.Msg) {
         html.hr([attribute.class("border-rose-900 border-1 mx-4 my-3")]),
         languages(model),
         tools(model),
+        blog.list_posts(),
       ]),
       html.div([], [projects.render_all()]),
     ]),

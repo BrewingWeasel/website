@@ -1,5 +1,5 @@
 import components
-import core.{type Model}
+import core.{type MainPageModel}
 import gleam/list
 import gleam/option
 import lustre/attribute
@@ -7,7 +7,7 @@ import lustre/element.{type Element}
 import lustre/element/html
 import util/icon.{Icon}
 
-pub fn languages(model: Model) -> Element(core.Msg) {
+pub fn languages(model: MainPageModel) -> Element(core.Msg) {
   html.div([attribute.class("")], [
     components.title_text("Languages:", "text-center"),
     html.div(

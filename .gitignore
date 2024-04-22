@@ -1,5 +1,5 @@
-*.beam
-*.ez
-/build
-erl_crash.dump
-/priv/static
+*/.beam
+*/.ez
+*/build
+*/erl_crash.dump
+*/site/priv
